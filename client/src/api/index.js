@@ -44,7 +44,7 @@ export const loginUser = (payload) => api.post(`/login/`, payload).then(
     function (error) {
         return error.response;
     })
-export const logoutUser = () => api.get(`/logout/`)
+export const logoutUser = () => api.put(`/logout/`)
 
 const apis = {
     createTop5List,

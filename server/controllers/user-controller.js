@@ -144,8 +144,23 @@ loginUser = async (req, res) => {
     }
 }
 
+logoutUser = async (req, res) => {
+    try{
+        auth.verify(req, res, async function () {
+            const loggedInUser = await User.findOne({ _id: req.userId });
+            return res.status(200).json({
+                loggedIn: false
+            }).send();
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send();
+    }
+}
+
 module.exports = {
     getLoggedIn,
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }

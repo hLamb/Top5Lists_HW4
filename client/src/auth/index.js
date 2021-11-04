@@ -9,7 +9,8 @@ console.log("create AuthContext: " + AuthContext);
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
-    ERROR_CODE: "ERROR_CODE"
+    ERROR_CODE: "ERROR_CODE",
+    SET_LOGGED_OUT: "SET_LOGGED_OUT"
 }
 
 function AuthContextProvider(props) {
@@ -45,6 +46,11 @@ function AuthContextProvider(props) {
                     loggedIn: payload.loggedIn,
                     errorCode: payload.errorCode
                 });
+            }
+            case AuthActionType.SET_LOGGED_OUT: {
+                return setAuth({
+                    loggedIn: false
+                })
             }
             default:
                 return auth;
@@ -99,6 +105,19 @@ function AuthContextProvider(props) {
         }
         else if(response.status === 400) {
             auth.setErrorCode(response.data.errorMessage);
+        }
+    }
+
+    auth.logoutUser = async function() {
+        const response = await api.logoutUser();
+        if (response.status === 200) {
+            authReducer({
+                type: AuthActionType.SET_LOGGED_OUT,
+                payload: {
+                    loggedIn: !response.data.loggedIn,
+                    user: response.data.user
+                }
+            });
         }
     }
 
