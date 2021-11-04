@@ -81,6 +81,10 @@ export default function AppBanner() {
     }
     
     function getAccountMenu(loggedIn) {
+        if(loggedIn){
+            //let userInfo = auth.getLoggedIn().user;
+            //return <Typography variant="h4">{userInfo.firstName[:1]+" " + userInfo.lastName[:1]}</Typography>
+        }
         return <AccountCircle />;
     }
 

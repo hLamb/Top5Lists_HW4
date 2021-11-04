@@ -8,13 +8,15 @@ console.log("create AuthContext: " + AuthContext);
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR AUTH STATE THAT CAN BE PROCESSED
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    ERROR_CODE: "ERROR_CODE"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        error: null
     });
     const history = useHistory();
 
@@ -35,7 +37,14 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true
-                })
+                });
+            }
+            case AuthActionType.ERROR_CODE: {
+                return setAuth({
+                    user: payload.user,
+                    loggedIn: payload.loggedIn,
+                    errorCode: payload.errorCode
+                });
             }
             default:
                 return auth;
@@ -56,7 +65,7 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
-        const response = await api.registerUser(userData);      
+        const response = await api.registerUser(userData);   
         if (response.status === 200) {
             authReducer({
                 type: AuthActionType.REGISTER_USER,
@@ -66,6 +75,9 @@ function AuthContextProvider(props) {
             })
             history.push("/");
             store.loadIdNamePairs();
+        }
+        else if(response.status === 400) {
+            auth.setErrorCode(response.data.errorMessage);
         }
     }
 
@@ -81,6 +93,24 @@ function AuthContextProvider(props) {
             history.push("/");
             store.loadIdNamePairs();
         }
+        else if(response.status === 400) {
+            auth.setErrorCode(response.data.errorMessage);
+        }
+    }
+
+    auth.setErrorCode = async function(code) {
+        authReducer({
+            type: AuthActionType.ERROR_CODE,
+            payload: {
+                user: auth.user,
+                loggedIn: auth.loggedIn,
+                errorCode: code
+            }
+        })
+    }
+
+    auth.getErrorCode = function() {
+        return auth.errorCode;
     }
 
     return (

@@ -24,20 +24,22 @@ getLoggedIn = async (req, res) => {
 
 registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, passwordVerify } = req.body;
+        const { firstName, lastName, email, password, passwordVerify} = req.body;
         if (!firstName || !lastName || !email || !password || !passwordVerify) {
             return res
                 .status(400)
-                .json({ errorMessage: "Please enter all required fields." });
+                .json({
+                    errorMessage: "Please enter all required fields."
+                });
         }
-        if (password.length < 8) {
+        else if (password.length < 8) {
             return res
                 .status(400)
                 .json({
                     errorMessage: "Please enter a password of at least 8 characters."
                 });
         }
-        if (password !== passwordVerify) {
+        else if (password !== passwordVerify) {
             return res
                 .status(400)
                 .json({
@@ -104,8 +106,7 @@ loginUser = async (req, res) => {
             return res
                 .status(400)
                 .json({
-                    success: false,
-                    errorMessage: "Invalid email and/or password."
+                    errorMessage: "Invalid email / password."
                 })
         }
 
@@ -128,6 +129,13 @@ loginUser = async (req, res) => {
                         email: existingUser.email
                     }
                 }).send();
+            }
+            else {
+                return res
+                    .status(400)
+                    .json({
+                        errorMessage: "Invalid email / password."
+                    });
             }
         });
     } catch (err) {

@@ -12,6 +12,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { GlobalStoreContext } from '../store'
+import SignInModal from './SignInModal.js';
 
 export default function RegisterScreen() {
     const { auth } = useContext(AuthContext);
@@ -25,8 +26,10 @@ export default function RegisterScreen() {
             lastName: formData.get('lastName'),
             email: formData.get('email'),
             password: formData.get('password'),
-            passwordVerify: formData.get('passwordVerify')
+            passwordVerify: formData.get('passwordVerify'),
         }, store);
+
+        
     };
 
     return (
@@ -118,6 +121,7 @@ export default function RegisterScreen() {
                             </Grid>
                         </Grid>
                     </Box>
+                    {auth.getErrorCode() ? <SignInModal /> : null}
                 </Box>
                 <Copyright sx={{ mt: 5 }} />
             </Container>

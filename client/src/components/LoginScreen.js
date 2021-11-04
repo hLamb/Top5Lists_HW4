@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import SignInModal from './SignInModal.js';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
@@ -33,7 +34,7 @@ const theme = createTheme();
 
 export default function LoginScreen() {
     const { auth } = useContext(AuthContext);
-    const { store } = useContext(GlobalStoreContext)
+    const { store } = useContext(GlobalStoreContext);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -126,6 +127,7 @@ export default function LoginScreen() {
                 <Copyright sx={{ mt: 5 }} />
                 </Box>
             </Box>
+            {auth.getErrorCode() ? <SignInModal /> : null}
             </Grid>
         </Grid>
         </ThemeProvider>
