@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import ListCard from './ListCard.js'
+import DeleteModal from './DeleteModal.js'
 import { Fab, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import List from '@mui/material/List';
@@ -19,6 +20,12 @@ const HomeScreen = () => {
     function handleCreateNewList() {
         store.createNewList();
     }
+
+    function getDeleteModal() {
+        if(store.listMarkedForDeletion)
+            return <DeleteModal />;
+    }
+
     let listCard = "";
     if (store) {
         listCard = 
@@ -52,6 +59,7 @@ const HomeScreen = () => {
                     listCard
                 }
             </div>
+            { getDeleteModal() }
         </div>)
 }
 
