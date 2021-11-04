@@ -286,7 +286,7 @@ function GlobalStoreContextProvider(props) {
         let response = await api.getTop5ListById(id);
         if (response.data.success) {
             let top5List = response.data.top5List;
-            if (top5List.email !== auth.getUser().email)
+            if (top5List.email === auth.getUser().email)
             {
                 response = await api.updateTop5ListById(top5List._id, top5List);
                 if (response.data.success) {

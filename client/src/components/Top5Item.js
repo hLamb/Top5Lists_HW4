@@ -48,12 +48,69 @@ function Top5Item(props) {
         store.addMoveItemTransaction(sourceId, targetId);
     }
 
+    function handleClick(event) {
+        setEditActive(true);
+    }
+
+    function handleKeyPress(event, targetId) {
+        if (event.key === "Enter") {
+            handleBlur(event, targetId);
+        }
+    }
+
+    function handleBlur(event, targetId) {
+        event.preventDefault();
+        setEditActive(false);
+
+        console.log("handleBlur (targetId, newText): ( " + targetId + ", " + event.target.value + ")");
+
+        // UPDATE THE LIST 
+        store.addUpdateItemTransaction(targetId, event.target.value);
+    }
+
     let { index } = props;
 
     let itemClass = "top5-item";
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
+
+    let card = !editActive ? 
+        <div>
+            <Box sx={{ p: 1 }} style={
+                {display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',}
+                }>
+                <IconButton aria-label='edit'
+                    onClick={handleClick}>
+                    <EditIcon style={{fontSize:'48pt'}}  />
+                </IconButton>
+                <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
+            </Box>
+        </div> :
+        <Box style={
+            {display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',}
+            }>
+            <TextField
+            required
+            fullWidth
+            id={"item-" + (index + 1)}
+            label="Top 5 Item Name"
+            name="name"
+            autoComplete="Top 5 Item Name"
+            className={itemClass}
+            onKeyPress={(event) => {handleKeyPress(event, (index))}}
+            onBlur={(event) => {handleBlur(event, (index))}}
+            defaultValue={props.text}
+            inputProps={{style: {fontSize: 48}}}
+            InputLabelProps={{style: {fontSize: 24}}}
+            autoFocus
+            />  
+        </Box>
+        
 
     return (
             <ListItem
@@ -82,12 +139,7 @@ function Top5Item(props) {
                     width: '100%'
                 }}
             >
-            <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
-                    <EditIcon style={{fontSize:'48pt'}}  />
-                </IconButton>
-            </Box>
-                <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
+            {card}
             </ListItem>
     )
 }
