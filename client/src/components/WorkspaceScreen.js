@@ -65,10 +65,6 @@ function WorkspaceScreen() {
                     marginLeft="auto"
                     marginRight="auto"
                 />
-                <Alert severity="error"
-                       height="auto">
-                    <strong>Unauthorized to access this list.</strong>
-                </Alert>
             </div>
         </div>;
     }
