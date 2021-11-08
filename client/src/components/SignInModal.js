@@ -46,7 +46,7 @@ export default function SignInModal() {
             closeAfterTransition
             BackdropComponent={Backdrop}
             BackdropProps={{
-            timeout: 500,
+                timeout: 500,
             }}
         >
             <Fade in={open}>

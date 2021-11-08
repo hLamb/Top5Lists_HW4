@@ -5,6 +5,7 @@ import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
 import UpdateItem_Transaction from '../transactions/UpdateItem_Transaction'
 import AuthContext from '../auth'
+import { Global } from '@emotion/react'
 /*
     This is our global data store. Note that it uses the Flux design pattern,
     which makes use of things like actions and reducers. 
@@ -26,7 +27,8 @@ export const GlobalStoreActionType = {
     UNMARK_LIST_FOR_DELETION: "UNMARK_LIST_FOR_DELETION",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
-    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
+    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    UNAUTHORIZE_LIST: "UNAUTHORIZE_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -42,7 +44,8 @@ function GlobalStoreContextProvider(props) {
         newListCounter: 0,
         listNameActive: false,
         itemActive: false,
-        listMarkedForDeletion: null
+        listMarkedForDeletion: null,
+        unauthorizedList: false
     });
     const history = useHistory();
 
@@ -62,7 +65,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -73,7 +77,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 })
             }
             // CREATE A NEW LIST
@@ -84,7 +89,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter + 1,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -95,7 +101,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -106,7 +113,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: payload
+                    listMarkedForDeletion: payload,
+                    unauthorizedList: false
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -117,7 +125,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
             }
             // UPDATE A LIST
@@ -128,7 +137,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
             }
             // START EDITING A LIST ITEM
@@ -139,7 +149,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: true,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
             }
             // START EDITING A LIST NAME
@@ -150,8 +161,21 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: true,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    unauthorizedList: false
                 });
+            }
+            // DON'T ALLOW USER TO VIEW THIS LIST
+            case GlobalStoreActionType.UNAUTHORIZE_LIST: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    unauthorizedList: true
+                })
             }
             default:
                 return store;
@@ -286,15 +310,28 @@ function GlobalStoreContextProvider(props) {
         let response = await api.getTop5ListById(id);
         if (response.data.success) {
             let top5List = response.data.top5List;
-            if (top5List.email === auth.getUser().email)
+            response = await api.getLoggedIn();
+            if(response.status === 200)
             {
-                response = await api.updateTop5ListById(top5List._id, top5List);
-                if (response.data.success) {
+                // THIS LIST IS THE USERS
+                if(top5List.email === response.data.user.email)
+                {
+                    response = await api.updateTop5ListById(top5List._id, top5List);
+                    if (response.data.success) {
+                        storeReducer({
+                            type: GlobalStoreActionType.SET_CURRENT_LIST,
+                            payload: top5List
+                        });
+                        history.push("/top5list/" + top5List._id);
+                    }
+                }
+                else
+                {
+                    console.log("UNAUTHORIZED TO VIEW LIST BY THIS USER.")
                     storeReducer({
-                        type: GlobalStoreActionType.SET_CURRENT_LIST,
-                        payload: top5List
+                        type: GlobalStoreActionType.UNAUTHORIZE_LIST,
+                        payload: null
                     });
-                    history.push("/top5list/" + top5List._id);
                 }
             }
         }

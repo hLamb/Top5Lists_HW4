@@ -20,8 +20,6 @@ function ListCard(props) {
     const [text, setText] = useState("");
     const { idNamePair } = props;
 
-    console.log(props);
-
     function handleLoadList(event, id) {
         if (!event.target.disabled) {
             // CHANGE THE CURRENT LIST
